@@ -18,6 +18,16 @@ def setup_module():
 
 @pytest.fixture(scope="session")
 def ssh_connection() -> str:
+    """
+    Create and configure an SSH workspace connection by fetching the remote setup script from the workspace, running it non-interactively to supply prompts, and returning the configured connection name.
+    
+    This function:
+    - Requests the workspace SSH setup command and extracts the setup script URL.
+    - Downloads the setup script to ./setup-ssh.sh, makes it executable, runs it while providing the connection name and answering required prompts, and then removes the script file.
+    
+    Returns:
+        ssh_connection_name (str): The name of the configured SSH connection (from WORKSPACE_NAME or "workspace-test").
+    """
     ssh_connection_name = os.getenv("WORKSPACE_NAME", "workspace-test")
 
     result = requests.get(
@@ -76,6 +86,11 @@ class TestTooling:
         assert "<title>noVNC</title>" in result.text
 
     def test_tool_vscode(self):
+        """
+        Verify the workspace's VS Code web endpoint is reachable and identifies as Microsoft Corporation.
+        
+        Performs an HTTP GET to the workspace /tools/vscode/ endpoint and asserts the response status is 200 and the page content contains "Microsoft Corporation".
+        """
         result = requests.get(f"http://{workspace_host}:{workspace_port}/tools/vscode/")
         assert result.status_code == 200
         assert "Microsoft Corporation" in result.text

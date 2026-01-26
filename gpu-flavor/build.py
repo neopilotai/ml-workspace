@@ -11,12 +11,28 @@ IMAGE_NAME = "ml-workspace"
 
 
 def get_docker_image_name(flavor: str) -> str:
-    """Get the name of the Docker image."""
+    """
+    Constructs the Docker image name for a given flavor.
+    
+    Parameters:
+        flavor (str): Flavor suffix to append to the base image name (e.g., "gpu").
+    
+    Returns:
+        str: Image name formed by joining the base IMAGE_NAME, a hyphen, and the provided flavor.
+    """
     return IMAGE_NAME + "-" + flavor
 
 
 def get_base_image(version: str, release: bool) -> str:
-    """Get the base image for the build."""
+    """
+    Constructs the Docker base image reference for the given version.
+    
+    Parameters:
+        release (bool): If True, prefix the image name with the remote repository prefix.
+    
+    Returns:
+        str: Docker image reference, for example "ml-workspace:1.2.3" or "khulnasoft/ml-workspace:1.2.3".
+    """
     base_image = f"{IMAGE_NAME}:{version}"
     if release:
         base_image = REMOTE_IMAGE_PREFIX + base_image
@@ -24,7 +40,18 @@ def get_base_image(version: str, release: bool) -> str:
 
 
 def get_build_args(flavor: str, version: str, vcs_ref: str, build_date: str) -> str:
-    """Get the build arguments for the Docker image."""
+    """
+    Construct a Docker build-arg string for building the workspace image.
+    
+    Parameters:
+        vcs_ref (str): VCS reference (e.g., short commit SHA) to embed as ARG_VCS_REF.
+        build_date (str): Build timestamp (ISO 8601) to embed as ARG_BUILD_DATE.
+    
+    Returns:
+        str: A concatenated string of `--build-arg` options setting ARG_WORKSPACE_BASE_IMAGE
+             (base image for the given version, non-release), ARG_WORKSPACE_VERSION,
+             ARG_WORKSPACE_FLAVOR, ARG_VCS_REF, and ARG_BUILD_DATE.
+    """
     return (
         f" --build-arg ARG_WORKSPACE_BASE_IMAGE={get_base_image(version, False)}"
         f" --build-arg ARG_WORKSPACE_VERSION={version}"
@@ -35,7 +62,16 @@ def get_build_args(flavor: str, version: str, vcs_ref: str, build_date: str) -> 
 
 
 def main() -> None:
-    """Main entry point."""
+    """
+    Parse build arguments and orchestrate building, testing, and releasing the Docker image for the selected flavor.
+    
+    Parses command-line arguments (including --flavor and common build flags), validates the flavor, determines VCS reference and build date, and then:
+    - If the MAKE flag is set: builds the Docker image with appropriate build arguments.
+    - If the TEST flag is set: runs a container from the built image, executes the test suite inside it, and removes the container; exits with code 1 on test failure.
+    - If the RELEASE flag is set: publishes the Docker image using the configured image prefix.
+    
+    The function exits with code 1 on invalid flavor or when test failures occur.
+    """
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         "--flavor",

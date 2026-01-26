@@ -17,14 +17,24 @@ def read_item(item_id: int, q: str = None):
 
 def patch_fastapi(app: FastAPI):
     """
-    This patch is required to make fastapi fully functional with a relative url path.
-    This code snippet can be copy-pasted to any Fastapi application.
+    Patch a FastAPI application so the Swagger UI uses relative paths for its OpenAPI requests.
+    
+    Removes the existing "/docs" route and registers a replacement route at app.docs_url that serves a Swagger UI whose OpenAPI URL and runtime requests are rewritten to use relative paths. Mutates the provided FastAPI app in-place by updating app.router.routes and adding the new docs route.
+    
+    Parameters:
+        app (FastAPI): The FastAPI application instance to modify; this function updates its routes in-place.
     """
     from fastapi.openapi.docs import get_swagger_ui_html
     from starlette.requests import Request
     from starlette.responses import HTMLResponse
 
     async def swagger_ui_html(req: Request) -> HTMLResponse:
+        """
+        Generate the Swagger UI HTML response with a JavaScript requestInterceptor that rewrites outgoing API requests to use relative URLs.
+        
+        Returns:
+            HTMLResponse: The Swagger UI page with an injected `requestInterceptor` script that adjusts request URLs to the current relative path.
+        """
         swagger_ui = get_swagger_ui_html(
             openapi_url="./" + app.openapi_url.lstrip("/"),
             title=app.title + " - Swagger UI",

@@ -21,14 +21,14 @@ logging.basicConfig(
 
 
 def get_process_id(name):
-    """Return process ids found by (partial) name.
-
-    >>> get_process_id('kthreadd')
-    [2]
-    >>> get_process_id('watchdog')
-    [10, 11, 16, 21, 26, 31, 36, 41, 46, 51, 56, 61]  # ymmv
-    >>> get_process_id('non-existent process')
-    []
+    """
+    Get process IDs that match a (partial) process name.
+    
+    Parameters:
+        name (str): Process name or substring to search for.
+    
+    Returns:
+        list[int]: A list of matching process IDs as integers.
     """
     return list(map(int, subprocess.check_output(["pidof", name]).split()))
 

@@ -46,6 +46,15 @@ log.info("Execute Code...")
 
 # Wrapper to print out command
 def call(command):
+    """
+    Execute a shell command after logging it.
+    
+    Parameters:
+        command (str): Shell command to run.
+    
+    Returns:
+        int: Exit status of the command; `0` indicates success, non-zero indicates failure.
+    """
     log.info("Executing: " + command)
     return subprocess.call(command, shell=True)
 
@@ -84,6 +93,12 @@ elif EXECUTE_CODE.lower().startswith(("git+", "svn+", "hg+", "bzr+")):
 
         # automatically remove temp directory if process exits
         def cleanup():
+            """
+            Remove the temporary code_path directory and all its contents.
+            
+            This performs a recursive deletion of the filesystem path referenced by the global
+            variable `code_path`.
+            """
             shutil.rmtree(code_path)
 
         atexit.register(cleanup)

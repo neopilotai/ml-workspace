@@ -19,6 +19,11 @@ EXT_DIR = os.path.join(os.path.dirname(__file__), EXTENSION_NAME)
 class InstallCommand(install):
     def run(self):
         # Install Python package
+        """
+        Install the Python package, install the extension's frontend assets into the user's Jupyter data directory, and enable the extension's server-side handler in the user's Jupyter configuration.
+        
+        This method performs three actions: it delegates to the parent installer to install the Python package, installs the extension's JavaScript assets as a notebook extension for the current user, and updates (or creates) jupyter_notebook_config.json to set the extension's entry in NotebookApp.nbserver_extensions to True. Note: frontend activation via ConfigManager is present in the code as commented-out TODOs and is not performed here.
+        """
         install.run(self)
 
         # Install JavaScript extensions to ~/.local/jupyter/

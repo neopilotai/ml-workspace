@@ -6,6 +6,14 @@ from loguru import logger
 
 def setup_logging():
     # Remove default handler
+    """
+    Configure the module-level Loguru logger according to environment variables.
+    
+    When called, this function resets existing Loguru handlers and adds a stdout handler that either emits JSON or a human-readable formatted log line depending on the WORKSPACE_LOG_JSON environment variable. The log level is taken from WORKSPACE_LOG_LEVEL.
+    
+    Returns:
+        logger: A Loguru logger configured using WORKSPACE_LOG_JSON (default "false") and WORKSPACE_LOG_LEVEL (default "INFO").
+    """
     logger.remove()
 
     # Check if JSON logging is enabled
@@ -31,7 +39,14 @@ log = setup_logging()
 
 def get_secret(name, default=None):
     """
-    Get a secret from /run/secrets (Kubernetes/Docker Secret) or fallback to Environment Variable.
+    Retrieve a secret by name from the container secrets path or from an environment variable, preferring a secrets file.
+    
+    Parameters:
+        name (str): The secret name; used as the filename under WORKSPACE_SECRETS_PATH and as the environment variable key.
+        default (Optional[str]): Value to return if the secret file and environment variable are both absent.
+    
+    Returns:
+        str or None: The secret value as a string if found, otherwise the provided default.
     """
     secret_path = os.path.join(
         os.getenv("WORKSPACE_SECRETS_PATH", "/run/secrets"), name

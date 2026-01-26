@@ -12,10 +12,13 @@ from IPython.display import HTML, display
 
 
 def _tensorboard_magic(line):
-    """Line magic function.
-
-    Makes an AJAX call to the Jupyter TensorBoard server extension and outputs
-    an IFrame displaying the TensorBoard instance.
+    """
+    Display a TensorBoard instance in the notebook for a specified log directory.
+    
+    Parses the magic's argument string for a `--logdir` option (default "/workspace/"), requests a TensorBoard session from the Jupyter TensorBoard server extension, and injects an iframe that loads the created TensorBoard page.
+    
+    Parameters:
+        line (str): The raw argument string passed to the line magic; supports `--logdir <path>`.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--logdir", default="/workspace/")
@@ -54,10 +57,11 @@ def _tensorboard_magic(line):
 
 
 def load_ipython_extension(_ipython):
-    """Deprecated: use `%load_ext tensorboard` instead.
-
+    """
+    Deprecated loader kept for compatibility; instructs users to use '%load_ext tensorboard' and always raises a RuntimeError.
+    
     Raises:
-      RuntimeError: Always.
+        RuntimeError: Always raised with the message "Use '%load_ext tensorboard' instead of '%load_ext tensorboard.notebook'."
     """
     raise RuntimeError(
         "Use '%load_ext tensorboard' instead of '%load_ext tensorboard.notebook'."
